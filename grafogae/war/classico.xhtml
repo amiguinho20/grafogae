@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:ui="http://java.sun.com/jsf/facelets"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>
+		<h:outputText value="Grafo" />
+	</title>
+	<h:outputStylesheet name="geral.css" library="css" />
+	<!--
+	Esse script eh dependencia do Arborjs, mas quando o PrimeFaces esta em uso, ele nao funciona.
+	Alem disso, o PrimeFaces possui internamente ele, por isso que o Arborjs continua a funcionar.
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"/>
+	-->
+	<script type="text/javascript" src="./resources/js/arborjs/arbor.js" />
+    <script type="text/javascript" src="./resources/js/arborjs/graphics.js" />
+    <script type="text/javascript" src="./resources/js/renderizador.js" />
+</h:head>
+
+<h:body>
+	<h:panelGroup layout="block" id="cabecalho">
+		<p:growl id="msg" showDetail="false"  life="15000"  autoUpdate="true"/>
+		<h:panelGrid columns="5" >
+			<h:panelGroup layout="block" id="logotipo">
+				<p>Protótipo</p>
+			</h:panelGroup>
+			<h:panelGroup layout="block" >
+				<h:form id="formDialogInclusao" >
+		       		<p:commandButton value="Incluir Vértice" type="button" onclick="PF('dlgIncluirVertice').show();" icon="ui-icon-plus" />
+		       		<p:dialog header="Incluir Vértice" widgetVar="dlgIncluirVertice" modal="true" height="170" width="300">
+		       			<h:panelGrid columns="1">
+							<p:inputText id="nome" value="#{grafoMB.vertice.nome}" required="true" requiredMessage="O nome é obrigatório."/>
+				       		<p:watermark value="Nome do Vértice" for="nome"/>
+							
+							<p:colorPicker value="#{grafoMB.vertice.cor}" />
+		
+				       		<p:selectOneMenu id="comboForma" value="#{grafoMB.vertice.forma}" >
+								<f:selectItem itemLabel="Circulo"   itemValue="dot"/>
+								<f:selectItem itemLabel="Retângulo" itemValue="rectangle" />
+				       		</p:selectOneMenu>
+				       		
+				       		<p:commandButton action="#{grafoMB.incluirVertice}" value="Incluir"  onsuccess="PF('dlgIncluirVertice').hide();" update="@form :formDialogExclusao :formDialogIncluirAresta :formDialogExcluirAresta :formCanvas :footer"  icon="ui-icon-plus" />
+			       		</h:panelGrid>
+					</p:dialog> 
+				</h:form>	
+			</h:panelGroup>
+
+			<h:panelGroup layout="block">
+			<h:form id="formDialogExclusao" >
+				<p:commandButton value="Excluir Vértice" type="button" onclick="PF('dlgExcluirVertice').show();" icon="ui-icon-minus" disabled="#{empty grafoMB.vertices}"/>
+	       		<p:dialog header="Excluir Vértice" widgetVar="dlgExcluirVertice" modal="true" height="100">
+	       			<h:panelGrid columns="1">
+						<p:selectOneMenu id="comboVertice" 
+							value="#{grafoMB.vertice}" 
+							converter="verticeConverter" 
+							required="true"
+							requiredMessage="O vértice para exclusão é obrigatório.">
+							<f:selectItem itemLabel="Selecione" />
+							<f:selectItems value="#{grafoMB.vertices}" var="vertice" itemValue="#{vertice}" itemLabel="#{vertice.nome}" />
+						</p:selectOneMenu>
+	 		       		<p:commandButton action="#{grafoMB.excluirVertice}" value="Excluir" onsucess="PF('dlgExcluirVertice').hide();" update="@form :formDialogIncluirAresta :formDialogExcluirAresta :formCanvas :footer" icon="ui-icon-minus" />
+		       		</h:panelGrid>
+				</p:dialog> 
+			</h:form>
+			</h:panelGroup>
+		
+			<h:panelGroup layout="block" >		
+			<h:form id="formDialogIncluirAresta">
+				<p:commandButton value="Incluir Aresta" type="button" onclick="PF('dlgIncluirAresta').show();" icon="ui-icon-plus" disabled="#{fn:length(grafoMB.vertices) lt 2}" />
+	       		<p:dialog header="Incluir Aresta" widgetVar="dlgIncluirAresta" modal="true" height="250">
+	       			<h:panelGrid columns="1">
+						<p:selectOneMenu id="comboIncluirArestaOrigem" value="#{grafoMB.aresta.origem}" styleClass="identComboIncluirArestaOrigem" converter="verticeConverter" required="true" requiredMessage="A origem é obrigatória.">
+							<f:selectItem itemLabel="Selecione a origem" itemValue="" />
+							<f:selectItems value="#{grafoMB.vertices}" var="origem" itemValue="#{origem}" itemLabel="#{origem.nome}" />
+							<f:ajax render="comboIncluirArestaDestino" event="change" listener="#{grafoMB.listarVerticesDestino}" />
+						</p:selectOneMenu>
+						<p:selectOneMenu id="comboIncluirArestaDestino" value="#{grafoMB.aresta.destino}" styleClass="identComboIncluirArestaDestino" converter="verticeConverter" disabled="#{empty grafoMB.aresta.origem.nome}" required="true" requiredMessage="O destino é obrigatório.">
+							<f:selectItem itemLabel="Selecione o destino" itemValue="" />
+							<f:selectItems value="#{grafoMB.verticesDestino}" var="destino" itemValue="#{destino}" itemLabel="#{destino.nome}" />
+						</p:selectOneMenu>
+						<h:panelGrid columns="2">
+							<h:outputText value="Largura: " />
+							<p:selectOneMenu value="#{grafoMB.aresta.largura}" >
+								<f:selectItem itemLabel="1" itemValue="1" />
+								<f:selectItem itemLabel="2" itemValue="2" />
+								<f:selectItem itemLabel="3" itemValue="3" />
+								<f:selectItem itemLabel="4" itemValue="4" />
+								<f:selectItem itemLabel="5" itemValue="5" />
+							</p:selectOneMenu>
+							<h:outputText value="Direção: " />
+							<p:selectBooleanCheckbox value="#{grafoMB.aresta.direcao}" />
+								<h:outputText value="Cor: " />
+							<p:colorPicker value="#{grafoMB.aresta.cor}" />
+						</h:panelGrid>
+	 		       		<p:commandButton action="#{grafoMB.incluirAresta}" value="Incluir" onsucess="PF('dlgIncluirAresta').hide();" update="@form :formDialogExcluirAresta :formCanvas :footer"  icon="ui-icon-plus"/>
+	 	       		</h:panelGrid>
+				</p:dialog>
+			</h:form>
+			</h:panelGroup>
+
+			<h:panelGroup layout="block" >		
+			<h:form id="formDialogExcluirAresta">
+				<p:commandButton value="Excluir Aresta" type="button" onclick="PF('dlgExcluirAresta').show();" icon="ui-icon-minus" disabled="#{empty grafoMB.arestas}" />
+	       		<p:dialog header="Excluir Aresta" widgetVar="dlgExcluirAresta" modal="true" height="340" width="400">
+	       			<p:dataTable id="dtExcluirAresta" var="aresta" value="#{grafoMB.arestas}" paginator="true" rows="5">
+	       				<p:column headerText="Origem">
+	       					<h:outputText value="#{aresta.origem.nome}" />
+	       				</p:column>
+	       				<p:column headerText="Destino">
+	       					<h:outputText value="#{aresta.destino.nome}" />
+	       				</p:column>
+	       				<p:column headerText="Excluir?" width="20px">
+	       					<p:commandButton icon="ui-icon-close" action="#{grafoMB.excluirAresta}" update="@form :formDialogIncluirAresta :formCanvas" onsucess="PF('dlgExcluirAresta').hide();"  >
+	       						<f:setPropertyActionListener target="#{grafoMB.aresta}" value="#{aresta}" />
+	       					</p:commandButton>
+	       				</p:column>
+	       			</p:dataTable>
+				</p:dialog>
+			</h:form>
+			</h:panelGroup>
+		
+		</h:panelGrid>
+	</h:panelGroup>
+	
+	<h:panelGroup layout="block" id="conteudo"> 
+		<h:form id="formCanvas" >
+			<canvas id="viewport" />
+			<script type="text/javascript"> 
+				var sys = arbor.ParticleSystem(1000, 400, 1);
+				<h:panelGroup layout="block" rendered="#{fn:length(grafoMB.vertices) == 1}">
+					sys = arbor.ParticleSystem(1, 400, 1);
+				</h:panelGroup>
+	          	sys.parameters({gravity:true});
+	          	sys.renderer = Renderer("#viewport");
+	          	
+				<ui:repeat var="vertice" value="#{grafoMB.vertices}" varStatus="status">	
+	          		sys.addNode('#{vertice.id}',{'color':'#' + '#{vertice.cor}','shape':'#{vertice.forma}','label':'#{vertice.nome}'});
+	          	</ui:repeat>
+
+				<ui:repeat var="aresta" value="#{grafoMB.arestas}" varStatus="status">	
+					sys.addEdge( sys.getNode('#{aresta.origem.id}') , sys.getNode('#{aresta.destino.id}'), {color:'#' + '#{aresta.cor}', directed:#{aresta.direcao}, weight:'#{aresta.largura}'} );
+				</ui:repeat>
+			</script>
+		</h:form>
+	</h:panelGroup>
+	
+	<h:panelGroup layout="block" id="rodape" rendered="false"> 
+		<p:panelGrid columns="3" id="footer">
+		    <h:outputText value="Vértices:" />
+		    <h:outputText value="#{fn:length(grafoMB.vertices)}" />
+			<ui:repeat var="vertice" value="#{grafoMB.vertices}" varStatus="status">	
+				<h:outputText value="#{vertice.id}-#{vertice.nome}; " />
+			</ui:repeat>
+			<h:outputText value="Arestas:" />
+			<h:outputText value="#{fn:length(grafoMB.arestas)}" />
+			<ui:repeat var="aresta" value="#{grafoMB.arestas}" varStatus="status">	
+				<h:outputText value="#{aresta.origem.nome}-#{aresta.destino.nome}; " />
+			</ui:repeat>
+		</p:panelGrid>
+	</h:panelGroup>
+
+</h:body>
+</html>

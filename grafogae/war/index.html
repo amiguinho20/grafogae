@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+</head>
+<body>
+	<script type="text/javascript">
+		jQuery(document).ready(function($){
+		    var deviceAgent = navigator.userAgent.toLowerCase();
+		    var agentID = deviceAgent.match(/(iphone|ipod|ipad|android)/);
+		 
+		    if (agentID) 
+			{
+		    	window.location.href = "mobile.xhtml";
+		    } 
+		    else 
+			{
+		    	window.location.href = "classico.xhtml";
+			}
+		});
+	</script>
+</body>
+</html>

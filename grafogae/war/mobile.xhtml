@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:pm="http://primefaces.org/mobile">
+     
+<f:view renderKitId="PRIMEFACES_MOBILE" />
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="./resources/css/geral.css"/>
+</h:head>
+     
+<h:body>
+<pm:page>
+<pm:content id="conteudo" style="margin: 0px; padding: 0px;">
+	<h:panelGroup id="mobileIframe" styleClass="identMobileIframe" layout="block">
+		<iframe id="iframeMobile" class="identIframeMobile" src="mobileIframe.xhtml"></iframe>
+	</h:panelGroup>
+</pm:content>
+<pm:footer id="rodape" fixed="true" >
+	
+		
+		<h:form class="identFormToolbar" rendered="true">
+		  	<p:commandButton value="Opções" 
+		  		type="button" onclick="PF('dlgOpcoes').show();" icon="ui-icon-plus" 
+		  		styleClass="ui-btn-inline" 
+		  		style="margin-left: 10px;"/>
+			<h:panelGroup id="logotipoMobile" layout="block" 
+				style="float: right; margin-right: 10px; margin-top: 15px; font-family: 'Righteous', cursive; font-size: 20px; color:#0000FF;">
+				<h:outputText value="Protótipo" />
+			</h:panelGroup>
+    		
+	      	<p:dialog id="opcoes" header="Opções" widgetVar="dlgOpcoes" modal="true">
+				<p:commandButton value="Incluir Vértice" 
+					type="button" onclick="PF('dlgOpcoes').hide();PF('dlgIncluirVertice').show();" icon="ui-icon-plus" />
+				<p:commandButton value="Excluir Vértice" 
+					type="button" onclick="PF('dlgOpcoes').hide();PF('dlgExcluirVertice').show();" icon="ui-icon-minus" 
+					disabled="#{empty grafoMB.vertices}"/>
+				<p:commandButton value="Incluir Aresta"  
+					type="button" onclick="PF('dlgOpcoes').hide();PF('dlgIncluirAresta').show();"  icon="ui-icon-plus"  
+					disabled="#{fn:length(grafoMB.vertices) lt 2}"/>
+				<p:commandButton value="Excluir Aresta"  
+					type="button" onclick="PF('dlgOpcoes').hide();PF('dlgExcluirAresta').show();"  icon="ui-icon-minus" 
+					disabled="#{empty grafoMB.arestas}" />	
+			</p:dialog>				
+		</h:form>
+		
+		
+		<h:panelGrid columns="3" rendered="true">
+			<h:panelGroup layout="block">
+	      	<p:dialog id="mobIncluirVertice" header="Incluir Vértice" widgetVar="dlgIncluirVertice" modal="true">
+	      		<h:form id="formDialogInclusao">
+	      			<h:panelGrid columns="1">
+						<p:inputText id="nome" value="#{grafoMB.vertice.nome}" required="true" requiredMessage="O nome é obrigatório."/>
+			       		<p:watermark value="Nome do Vértice" for="nome"/>
+			       		
+			       		<p:selectOneMenu id="comboCor" value="#{grafoMB.vertice.cor}" >
+							<f:selectItem itemLabel="Azul"      itemValue="0000FF" />
+							<f:selectItem itemLabel="Branco"    itemValue="FFFFFF"/>
+							<f:selectItem itemLabel="Chocolate" itemValue="D2691E"/>
+							<f:selectItem itemLabel="Cinza"     itemValue="BEBEBE"/>
+							<f:selectItem itemLabel="Coral"     itemValue="FF7F50"/>
+							<f:selectItem itemLabel="Laranja"   itemValue="FFA500"/>
+							<f:selectItem itemLabel="Ouro"      itemValue="FFD700"/>
+							<f:selectItem itemLabel="Preto"     itemValue="000000"/> 
+							<f:selectItem itemLabel="Rosa"      itemValue="FFC0CB"/>
+							<f:selectItem itemLabel="Roxo"      itemValue="800080"/>
+							<f:selectItem itemLabel="Verde"     itemValue="228B22"/>
+							<f:selectItem itemLabel="Vermelho"  itemValue="FF0000"/>
+							<f:selectItem itemLabel="Tomate"    itemValue="FF6347"/>
+						</p:selectOneMenu>
+			       		<p:selectOneMenu id="comboForma" value="#{grafoMB.vertice.forma}" >
+							<f:selectItem itemLabel="Circulo"   itemValue="dot"/>
+							<f:selectItem itemLabel="Retângulo" itemValue="rectangle" />
+			       		</p:selectOneMenu>
+			       		<p:commandButton action="#{grafoMB.incluirVertice}" value="Incluir"   onsuccess="PF('dlgIncluirVertice').hide();" update="@form @(.identFormDialogExclusao) @(.identFormDialogIncluirAresta) @(.identFormToolbar)  @(.identMobileIframe)"  icon="ui-icon-plus" />
+	       			</h:panelGrid>
+	       		</h:form>	
+			</p:dialog> 
+			</h:panelGroup>
+	
+			<h:panelGroup layout="block">
+	       	<p:dialog id="mobExcluirVertice" header="Excluir Vértice" widgetVar="dlgExcluirVertice" modal="true">
+				<h:form id="formDialogExclusao" styleClass="identFormDialogExclusao">
+	       			<h:panelGrid columns="1">
+						<p:selectOneMenu id="comboVertice" value="#{grafoMB.vertice}" converter="verticeConverter" styleClass="identComboVertice" required="true">
+							<f:selectItem itemLabel="Selecione" />
+							<f:selectItems value="#{grafoMB.vertices}" var="vertice" itemValue="#{vertice}" itemLabel="#{vertice.nome}" />
+						</p:selectOneMenu>
+	 		       		<p:commandButton action="#{grafoMB.excluirVertice}" value="Excluir"  oncomplete="PF('dlgExcluirVertice').hide();" update="@form @(.identFormDialogIncluirAresta) @(.identDialogExcluirAresta) @(.identMobileIframe) @(.identFormToolbar)" icon="ui-icon-minus" />
+		       		</h:panelGrid>
+				</h:form>
+			</p:dialog>
+			</h:panelGroup> 
+			
+			<h:panelGroup layout="block">
+			<p:dialog id="mobIncluirAresta" header="Incluir Aresta" widgetVar="dlgIncluirAresta" modal="true" >
+				<h:form id="formDialogIncluirAresta" styleClass="identFormDialogIncluirAresta">
+			 		<p:growl id="msgFormDialogIncluirAresta" showDetail="false"/>  
+	       			<h:panelGrid columns="1">
+						<p:selectOneMenu id="comboIncluirArestaOrigem" value="#{grafoMB.aresta.origem}" styleClass="identComboIncluirArestaOrigem" converter="verticeConverter" required="true" requiredMessage="A origem é obrigatória.">
+							<f:selectItem itemLabel="Selecione a origem" itemValue="" />
+							<f:selectItems value="#{grafoMB.vertices}" var="origem" itemValue="#{origem}" itemLabel="#{origem.nome}" />
+							<f:ajax render="comboIncluirArestaDestino" event="change" listener="#{grafoMB.listarVerticesDestino}" />
+						</p:selectOneMenu>
+						<p:selectOneMenu id="comboIncluirArestaDestino" value="#{grafoMB.aresta.destino}" styleClass="identComboIncluirArestaDestino" converter="verticeConverter" disabled="#{empty grafoMB.aresta.origem.nome}" required="true" requiredMessage="O destino é obrigatório.">
+							<f:selectItem itemLabel="Selecione o destino" itemValue="" />
+							<f:selectItems value="#{grafoMB.verticesDestino}" var="destino" itemValue="#{destino}" itemLabel="#{destino.nome}" />
+						</p:selectOneMenu>
+						<h:panelGrid columns="2">
+							<h:outputText value="Largura: " />
+							<p:selectOneMenu value="#{grafoMB.aresta.largura}" >
+								<f:selectItem itemLabel="1" itemValue="1" />
+								<f:selectItem itemLabel="2" itemValue="2" />
+								<f:selectItem itemLabel="3" itemValue="3" />
+								<f:selectItem itemLabel="4" itemValue="4" />
+								<f:selectItem itemLabel="5" itemValue="5" />
+							</p:selectOneMenu>
+							<h:outputText value="Direção: " />
+							<p:selectBooleanCheckbox value="#{grafoMB.aresta.direcao}" />
+							<h:outputText value="Cor: " />
+							<p:selectOneMenu id="comboCor" value="#{grafoMB.aresta.cor}" >
+								<f:selectItem itemLabel="Azul"      itemValue="0000FF" />
+								<f:selectItem itemLabel="Branco"    itemValue="FFFFFF"/>
+								<f:selectItem itemLabel="Chocolate" itemValue="D2691E"/>
+								<f:selectItem itemLabel="Cinza"     itemValue="BEBEBE"/>
+								<f:selectItem itemLabel="Coral"     itemValue="FF7F50"/>
+								<f:selectItem itemLabel="Laranja"   itemValue="FFA500"/>
+								<f:selectItem itemLabel="Ouro"      itemValue="FFD700"/>
+								<f:selectItem itemLabel="Preto"     itemValue="000000"/> 
+								<f:selectItem itemLabel="Rosa"      itemValue="FFC0CB"/>
+								<f:selectItem itemLabel="Roxo"      itemValue="800080"/>
+								<f:selectItem itemLabel="Verde"     itemValue="228B22"/>
+								<f:selectItem itemLabel="Vermelho"  itemValue="FF0000"/>
+								<f:selectItem itemLabel="Tomate"    itemValue="FF6347"/>
+							</p:selectOneMenu>
+						</h:panelGrid>
+	 		       		<p:commandButton action="#{grafoMB.incluirAresta}" value="Incluir" oncomplete="PF('dlgIncluirAresta').hide();" update="@form @(.identMobileIframe) @(.identDialogExcluirAresta) @(.identFormToolbar)"  icon="ui-icon-plus"/>
+	 	       		</h:panelGrid>
+				</h:form>
+			</p:dialog>
+			</h:panelGroup>
+			
+			<h:panelGroup layout="block" >		
+       		<p:dialog id="mobExcluirAresta"  header="Excluir Aresta" widgetVar="dlgExcluirAresta" modal="true">
+				<h:form id="formDialogExcluirAresta" styleClass="identDialogExcluirAresta">
+	       			<p:dataTable id="dtExcluirAresta" var="aresta" value="#{grafoMB.arestas}" >
+	       				<p:column headerText="Origem">
+	       					<h:outputText value="#{aresta.origem.nome}" />
+	       				</p:column>
+	       				<p:column headerText="Destino">
+	       					<h:outputText value="#{aresta.destino.nome}" />
+	       				</p:column>
+	       				<p:column headerText="Excluir?" width="20px">
+	       					<p:commandButton icon="ui-icon-minus" action="#{grafoMB.excluirAresta}" update="@form @(.identMobileIframe) @(.identFormDialogIncluirAresta) @(.identFormToolbar)" onsucess="PF('dlgExcluirAresta').hide();"  >
+	       						<f:setPropertyActionListener target="#{grafoMB.aresta}" value="#{aresta}" />
+	       					</p:commandButton>
+	       				</p:column>
+	       			</p:dataTable>
+				</h:form>
+			</p:dialog>
+			</h:panelGroup>
+		</h:panelGrid>
+</pm:footer>
+
+
+</pm:page>               
+</h:body>
+     
+</html>

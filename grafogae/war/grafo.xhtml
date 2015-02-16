@@ -1,0 +1,54 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"/>
+	<script type="text/javascript" src="./resources/js/arborjs/arbor.js" />
+	<script type="text/javascript" src="./resources/js/arborjs/graphics.js" />
+	<script type="text/javascript" src="./resources/js/renderizador.js" />
+	<style>
+		#viewport { 
+			position:absolute; 
+			top:0; 
+			left:0; 
+			z-index:1;
+		}
+		#cabecalho { 
+			/*position:relative; */
+			
+			z-index:0;
+			background-color: rgba(0, 0, 255, 0.3);
+			width: 100%;
+			text-align:center;
+		}
+	</style>
+</head>
+<body style="margin:0;padding:0">
+
+	<canvas id="viewport"></canvas>
+
+
+	
+	<script>
+		var sys = arbor.ParticleSystem(1000, 400,1);
+
+		sys.parameters({fps: 10, precision: 0.2});
+	  	sys.parameters({gravity:true});
+	  	sys.renderer = Renderer("#viewport") ;
+		var animals = sys.addNode('Animals',{'color':'red','shape':'dot','label':'Animals'});
+	
+		var dog = sys.addNode('dog',{'color':'green','shape':'dot','label':'dog'});
+		var cat = sys.addNode('cat',{'color':'blue','shape':'dot','label':'cat'});
+
+		var rat = sys.addNode('rat',{'color':'green','shape':'dot','label':'rat'});
+
+		
+		sys.addEdge(animals, dog, {color:'blue', weight:'3', directed:true});
+		sys.addEdge(animals, cat, {color:'red', weight:'1', directed:true});
+		sys.addEdge(dog, cat, {color:'green', weight:'5', directed:true});
+		//sys.addEdge(animals, cat);
+
+		//var cat = sys.addNode('mimi',{alone:true});
+		
+
+	</script>
+</body>
+</html>

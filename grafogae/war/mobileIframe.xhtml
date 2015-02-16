@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core">
+     
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</h:head>
+     
+<h:body>
+
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"/>
+	<script type="text/javascript" src="./resources/js/arborjs/arbor.js" />
+	<script type="text/javascript" src="./resources/js/arborjs/graphics.js" />
+	<script type="text/javascript" src="./resources/js/renderizador.js" />
+		
+	<canvas id="viewport" class="identViewport" style="position:absolute; top:0; left:0; z-index:0;"/>
+	<script type="text/javascript">
+	
+		var sys = arbor.ParticleSystem(1000, 400, 1);
+		<h:panelGroup layout="block" rendered="#{fn:length(grafoMB.vertices) == 1}">
+			sys = arbor.ParticleSystem(1, 400, 1);
+		</h:panelGroup>
+      	sys.parameters({gravity:true});
+      	sys.renderer = Renderer("#viewport");
+      	
+		<ui:repeat var="vertice" value="#{grafoMB.vertices}" varStatus="status">	
+      		sys.addNode('#{vertice.id}',{'color':'#' + '#{vertice.cor}','shape':'#{vertice.forma}','label':'#{vertice.nome}'});
+      	</ui:repeat>
+
+		<ui:repeat var="aresta" value="#{grafoMB.arestas}" varStatus="status">	
+			sys.addEdge( sys.getNode('#{aresta.origem.id}') , sys.getNode('#{aresta.destino.id}'), {color:'#' + '#{aresta.cor}', directed:#{aresta.direcao}, weight:'#{aresta.largura}'} );
+		</ui:repeat>
+	</script>
+              
+</h:body>
+</html>
