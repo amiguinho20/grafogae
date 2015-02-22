@@ -24,7 +24,7 @@
 <h:body>
 	<h:panelGroup layout="block" id="cabecalho">
 		<p:growl id="msg" showDetail="false"  life="15000"  autoUpdate="true"/>
-		<h:panelGrid columns="5" >
+		<h:panelGrid columns="7" >
 			<h:panelGroup layout="block" id="logotipo">
 				<p>Protótipo</p>
 			</h:panelGroup>
@@ -39,15 +39,46 @@
 							<p:colorPicker value="#{grafoMB.vertice.cor}" />
 		
 				       		<p:selectOneMenu id="comboForma" value="#{grafoMB.vertice.forma}" >
-								<f:selectItem itemLabel="Circulo"   itemValue="dot"/>
+								<f:selectItem itemLabel="Círculo"   itemValue="dot"/>
 								<f:selectItem itemLabel="Retângulo" itemValue="rectangle" />
 				       		</p:selectOneMenu>
 				       		
-				       		<p:commandButton action="#{grafoMB.incluirVertice}" value="Incluir"  onsuccess="PF('dlgIncluirVertice').hide();" update="@form :formDialogExclusao :formDialogIncluirAresta :formDialogExcluirAresta :formCanvas :footer"  icon="ui-icon-plus" />
+				       		<p:commandButton action="#{grafoMB.incluirVertice}" value="Incluir"  onsuccess="PF('dlgIncluirVertice').hide();" update="@form :formDialogAlteracao :formDialogExclusao :formDialogIncluirAresta :formDialogExcluirAresta :formCanvas :formLimpar :footer"  icon="ui-icon-plus" />
 			       		</h:panelGrid>
 					</p:dialog> 
 				</h:form>	
 			</h:panelGroup>
+
+			<h:panelGroup layout="block" >
+				<h:form id="formDialogAlteracao" >
+		       		<p:commandButton value="Alterar Vértice" type="button" onclick="PF('dlgAlterarVertice').show();" icon="ui-icon-wrench" disabled="#{empty grafoMB.vertices}"/>
+		       		<p:dialog header="Alterar Vértice" widgetVar="dlgAlterarVertice" modal="true" height="170" width="300">
+		       			<h:panelGrid columns="1">
+							<p:selectOneMenu id="comboVerticeAlteracao" 
+								value="#{grafoMB.vertice}" 
+								converter="verticeConverter" 
+								required="true"
+								requiredMessage="O vértice para alteração é obrigatório.">
+								<f:selectItem itemLabel="Selecione" />
+								<f:selectItems value="#{grafoMB.vertices}" var="vertice" itemValue="#{vertice}" itemLabel="#{vertice.nome}" />
+								<f:ajax render="nomeAlt corAlt comboFormaAlt alterar" event="change" listener="#{grafoMB.listarVerticesDestino}" />
+							</p:selectOneMenu>
+							<p:inputText id="nomeAlt" value="#{grafoMB.vertice.nome}" required="true" requiredMessage="O nome é obrigatório." disabled="#{empty grafoMB.vertice.nome}"/>
+					       	<p:watermark value="Nome do Vértice" for="nomeAlt"/>
+								
+							<p:colorPicker id="corAlt" value="#{grafoMB.vertice.cor}"   />
+			
+					       	<p:selectOneMenu id="comboFormaAlt" value="#{grafoMB.vertice.forma}" disabled="#{empty grafoMB.vertice.nome}" >
+								<f:selectItem itemLabel="Círculo"   itemValue="dot"/>
+								<f:selectItem itemLabel="Retângulo" itemValue="rectangle" />
+					       	</p:selectOneMenu>
+					       	
+				       		<p:commandButton id="alterar" action="#{grafoMB.alterarVertice}" value="Alterar"  onsuccess="PF('dlgAlterarVertice').hide();" update="@form :formDialogExclusao :formDialogIncluirAresta :formDialogExcluirAresta :formCanvas :footer"  icon="ui-icon-wrench" disabled="#{empty grafoMB.vertice.nome}"/>
+			       		</h:panelGrid>
+					</p:dialog> 
+				</h:form>	
+			</h:panelGroup>
+
 
 			<h:panelGroup layout="block">
 			<h:form id="formDialogExclusao" >
@@ -62,7 +93,7 @@
 							<f:selectItem itemLabel="Selecione" />
 							<f:selectItems value="#{grafoMB.vertices}" var="vertice" itemValue="#{vertice}" itemLabel="#{vertice.nome}" />
 						</p:selectOneMenu>
-	 		       		<p:commandButton action="#{grafoMB.excluirVertice}" value="Excluir" onsucess="PF('dlgExcluirVertice').hide();" update="@form :formDialogIncluirAresta :formDialogExcluirAresta :formCanvas :footer" icon="ui-icon-minus" />
+	 		       		<p:commandButton action="#{grafoMB.excluirVertice}" value="Excluir" onsucess="PF('dlgExcluirVertice').hide();" update="@form :formDialogIncluirAresta :formDialogAlteracao :formDialogExcluirAresta :formCanvas :formLimpar :footer" icon="ui-icon-minus" />
 		       		</h:panelGrid>
 				</p:dialog> 
 			</h:form>
@@ -122,6 +153,19 @@
 				</p:dialog>
 			</h:form>
 			</h:panelGroup>
+			
+			<h:panelGroup layout="block">
+			<h:form id="formLimpar">	
+				<p:commandButton value="Limpar" actionListener="#{grafoMB.limpar}" update="@all" icon="ui-icon-trash" disabled="#{empty grafoMB.vertices}" >
+					<p:confirm header="Confirmação" message="Você tem certeza?" icon="ui-icon-alert" />
+				</p:commandButton>
+				<p:confirmDialog global="true" showEffect="fade" >
+					<p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+					<p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+				</p:confirmDialog>
+        	</h:form>
+			</h:panelGroup>
+			
 		
 		</h:panelGrid>
 	</h:panelGroup>
