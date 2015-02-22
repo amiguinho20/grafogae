@@ -54,6 +54,17 @@ public class GrafoMB implements Serializable{
 			} 
 		}  
 	}
+	   
+	public void alterarVertice()
+	{
+		Vertice antigo = vertice;
+		
+		Vertice novo = persistencia.alterar(antigo);
+		
+		System.out.println("Alteracao de " + antigo + " para " + novo);
+		
+		init(); 
+	}
 	
 	public void incluirVertice(){
 		
@@ -114,6 +125,13 @@ public class GrafoMB implements Serializable{
 			init();
 		}
 	}
+
+	public void limpar()
+	{ 
+		persistencia.limpar();   
+		init();
+		System.out.println("Limpou...");
+	} 
 		 
 
 	public Vertice getVertice() {
