@@ -18,8 +18,7 @@ public class Persistencia implements Serializable{
 	
 	//-- singleton
 	private Persistencia(){
-		 vertices = new ArrayList<>();
-		 arestas = new ArrayList<>();
+		 init();
 	}
 	
 	//-- singleton
@@ -27,6 +26,16 @@ public class Persistencia implements Serializable{
 		return instance;
 	}
 
+	public void init(){
+		 vertices = new ArrayList<>();
+		 arestas = new ArrayList<>();
+	}
+
+	public void limpar()
+	{
+		init();
+	}
+	
 	
 	public Vertice incluir(Vertice vertice)
 	{
@@ -42,6 +51,15 @@ public class Persistencia implements Serializable{
 			}
 		}
 		return vertice;
+	}
+	
+	public Vertice alterar(Vertice vertice)
+	{
+		Vertice verticePersistido = selecionar(vertice);
+		verticePersistido.setNome(vertice.getNome());
+		verticePersistido.setForma(vertice.getForma());
+		verticePersistido.setCor(vertice.getCor());
+		return verticePersistido;
 	}
 	
 	public void excluir(Vertice vertice)
@@ -62,6 +80,8 @@ public class Persistencia implements Serializable{
 		
 		vertices.remove(vertice);
 	}
+	
+	
 	
 	public List<Vertice> listar()
 	{
@@ -94,7 +114,7 @@ public class Persistencia implements Serializable{
 	{
 		arestas.remove(aresta);
 	}
-
+	
 	public List<Aresta> listarAresta()
 	{
 		return arestas;
